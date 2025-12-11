@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesiJobs - Find Your Dream Career in India</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb; 
+            --secondary: #f97316; 
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--light); color: var(--dark); }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 100;
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .logo span { color: var(--secondary); }
+        .nav-links a { text-decoration: none; color: var(--dark); margin-left: 20px; font-weight: 500; }
+        
+        .btn-login { 
+            background: var(--primary); 
+            color: white !important; 
+            padding: 8px 20px; 
+            border-radius: 5px; 
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        .btn-logout {
+            background: #ef4444; /* Red for logout */
+            display: none; /* Hidden by default */
+        }
+
+        /* Hero & Layout Styles (Same as before) */
+        .hero {
+            background: linear-gradient(rgba(37, 99, 235, 0.9), rgba(37, 99, 235, 0.8)), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            padding: 80px 5%;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 20px; }
+        
+        .search-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        .search-box input, .search-box select { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 4px; }
+        .search-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 5%; }
+        .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .job-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; transition: transform 0.2s; }
+        .job-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .job-role { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .company-name { color: #64748b; font-size: 0.9rem; margin-bottom: 15px; }
+        .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .tag { background: #eff6ff; color: var(--primary); padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; }
+        .apply-btn { display: block; width: 100%; text-align: center; padding: 10px; border: 1px solid var(--primary); color: var(--primary); border-radius: 5px; text-decoration: none; font-weight: 600; }
+        .apply-btn:hover { background: var(--primary); color: white; }
+
+        /* --- LOGIN MODAL CSS --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: black; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        
+        .login-submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .error-msg { color: red; font-size: 0.9rem; margin-top: 10px; display: none; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Desi<span>Jobs</span></div>
+        <div class="nav-links">
+            <a href="#">Find Jobs</a>
+            <a href="#">Recruiters</a>
+            <button id="loginBtn" class="btn-login">Login</button>
+            <button id="logoutBtn" class="btn-login btn-logout">Logout</button>
+            <span id="userDisplay" style="margin-left: 15px; font-weight: bold; color: var(--primary);"></span>
+        </div>
+    </nav>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="margin-bottom: 20px; text-align: center;">Seeker Login</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <button class="login-submit-btn" onclick="handleLogin()">Login</button>
+            <p class="error-msg" id="errorMsg">Invalid Username or Password!</p>
+            <p style="margin-top: 15px; font-size: 0.8rem; color: #666;">
+                (Demo: User: <b>admin</b>, Pass: <b>12345</b>)
+            </p>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1 id="welcomeMsg">Find Your Next Job in India</h1>
+        <div class="search-box">
+            <input type="text" placeholder="Job title, skills, or company">
+            <select>
+                <option value="">Location</option>
+                <option>Bangalore</option>
+                <option>Pune</option>
+                <option>Mumbai</option>
+            </select>
+            <button class="search-btn">Search</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="job-grid">
+            <div class="job-card">
+                <div class="job-role">Python Developer</div>
+                <div class="company-name">DataSystems Pune</div>
+                <div class="tags"><span class="tag">Django</span><span class="tag">Python</span></div>
+                <a href="#" class="apply-btn" onclick="applyJob()">Apply Now</a>
+            </div>
+            <div class="job-card">
+                <div class="job-role">Java Backend Engineer</div>
+                <div class="company-name">Infosys</div>
+                <div class="tags"><span class="tag">Spring Boot</span><span class="tag">Java</span></div>
+                <a href="#" class="apply-btn" onclick="applyJob()">Apply Now</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const modal = document.getElementById("loginModal");
+        const loginBtn = document.getElementById("loginBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const closeSpan = document.getElementsByClassName("close")[0];
+        const userDisplay = document.getElementById("userDisplay");
+        const welcomeMsg = document.getElementById("welcomeMsg");
+        const errorMsg = document.getElementById("errorMsg");
+
+        // Open Modal
+        loginBtn.onclick = function() {
+            modal.style.display = "flex";
+            errorMsg.style.display = "none";
+        }
+
+        // Close Modal
+        closeSpan.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close if clicked outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // --- AUTHENTICATION LOGIC ---
+
+        // 1. Check if already logged in (when page loads)
+        window.onload = function() {
+            const storedUser = localStorage.getItem("desiUser");
+            if(storedUser) {
+                loginSuccess(storedUser);
+            }
+        };
+
+        // 2. Handle Login Click
+        function handleLogin() {
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+
+            // Simple validation (Simulating Backend)
+            if(user === "admin" && pass === "12345") {
+                // Save to LocalStorage (Persists even if you refresh)
+                localStorage.setItem("desiUser", user);
+                loginSuccess(user);
+                modal.style.display = "none";
+            } else {
+                errorMsg.style.display = "block";
+            }
+        }
+
+        // 3. Update UI on Success
+        function loginSuccess(username) {
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "block";
+            userDisplay.innerText = "Hi, " + username;
+            welcomeMsg.innerText = "Welcome back, " + username + "!";
+        }
+
+        // 4. Handle Logout
+        logoutBtn.onclick = function() {
+            localStorage.removeItem("desiUser");
+            location.reload(); // Refresh page to reset
+        }
+
+        // 5. Apply Button Logic
+        function applyJob() {
+            const storedUser = localStorage.getItem("desiUser");
+            if(!storedUser) {
+                alert("Please Login first to apply for this job!");
+                modal.style.display = "flex";
+            } else {
+                alert("Application Sent Successfully! (Demo)");
+            }
+        }
+    </script>
+
+</body>
+</html>
